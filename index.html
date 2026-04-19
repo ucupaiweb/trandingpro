@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="description" content="TradingPro - Platform trading digital terpercaya dengan fitur lengkap, real-time chart, deposit/withdraw, dan admin panel.">
+    <meta name="theme-color" content="#0B1120">
+    <title>TradingPro | Platform Trading Digital</title>
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <div id="app">
+        <!-- ==================== AUTHENTICATION SECTION ==================== -->
+        <div id="authSection" class="auth-section">
+            <!-- Login Card -->
+            <div class="auth-card" id="loginCard">
+                <div class="logo-brand">
+                    <i class="fas fa-chart-line"></i> TradingPro
+                </div>
+                <h2>Welcome Back</h2>
+                <p class="sub">Masuk ke akun trading anda</p>
+                
+                <div class="input-field">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="loginUsername" placeholder="Username" autocomplete="username">
+                </div>
+                <div class="input-field">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+                </div>
+                
+                <button id="loginBtn" class="btn-primary">
+                    <i class="fas fa-arrow-right"></i> Login
+                </button>
+                
+                <div class="auth-switch">
+                    Belum punya akun? <a href="#" id="showRegisterLink">Daftar Sekarang</a>
+                </div>
+                <div id="loginError" class="error-message"></div>
+            </div>
+            
+            <!-- Register Card (hidden by default) -->
+            <div class="auth-card" id="registerCard" style="display:none;">
+                <div class="logo-brand">
+                    <i class="fas fa-chart-line"></i> TradingPro
+                </div>
+                <h2>Daftar Akun</h2>
+                <p class="sub">Gratis & instant. Mulai trading dalam 1 menit</p>
+                
+                <div class="input-field">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="regUsername" placeholder="Username" autocomplete="off">
+                </div>
+                <div class="input-field">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="regPassword" placeholder="Password" autocomplete="new-password">
+                </div>
+                <div class="input-field">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="regEmail" placeholder="Email (opsional)">
+                </div>
+                
+                <button id="registerBtn" class="btn-primary">
+                    <i class="fas fa-user-plus"></i> Daftar
+                </button>
+                
+                <div class="auth-switch">
+                    Sudah punya akun? <a href="#" id="showLoginLink">Login</a>
+                </div>
+                <div id="regError" class="error-message"></div>
+            </div>
+        </div>
+        
+        <!-- ==================== DASHBOARD SECTION (hidden by default) ==================== -->
+        <div id="dashboardSection" style="display:none;">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i> TradingPro
+                </div>
+                <div class="user-menu">
+                    <span id="userNameDisplay" class="username"></span>
+                    <span class="balance-badge">
+                        <i class="fas fa-coins"></i> Saldo: $<span id="userBalance">0.00</span>
+                    </span>
+                    <button id="logoutButton" class="btn-outline">
+                        <i class="fas fa-sign-out-alt"></i> Keluar
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Trending Widget (real-time) -->
+            <div class="trending-widget">
+                <div class="card-title">
+                    <i class="fas fa-fire" style="color: #facc15;"></i> 🔥 Hot Trending (24h)
+                    <span class="trending-update-badge">Live</span>
+                </div>
+                <div id="trendingList" class="trending-list">
+                    <div class="loading-skeleton">Memuat data trending...</div>
+                </div>
+            </div>
+            
+            <!-- Main Grid: Chart + Order Panel -->
+            <div class="main-grid">
+                <!-- Left: Chart & Market Info -->
+                <div class="chart-panel">
+                    <div class="market-ticker" id="marketTicker">
+                        <!-- Dynamic ticker will be injected by JS -->
+                    </div>
+                    <canvas id="priceChart" width="600" height="300" style="max-height: 300px; width: 100%;"></canvas>
+                    <div class="chart-control">
+                        <button class="chart-time active" data-time="1m">1m</button>
+                        <button class="chart-time" data-time="5m">5m</button>
+                        <button class="chart-time" data-time="1h">1h</button>
+                        <button class="chart-time" data-time="1d">1d</button>
+                    </div>
+                </div>
+                
+                <!-- Right: Order, Deposit, Withdraw, History -->
+                <div class="order-panel">
+                    <div class="card-title">
+                        <i class="fas fa-exchange-alt"></i> Order Instant
+                    </div>
+                    <div class="order-form">
+                        <label>Pair</label>
+                        <select id="tradePairSelect">
+                            <option value="BTC">BTC/USD</option>
+                            <option value="ETH">ETH/USD</option>
+                            <option value="SOL">SOL/USD</option>
+                            <option value="DOGE">DOGE/USD</option>
+                            <option value="XRP">XRP/USD</option>
+                        </select>
+                        
+                        <label>Jumlah (USD)</label>
+                        <input type="number" id="orderAmount" placeholder="Min $10" step="10" min="10">
+                        
+                        <div class="order-actions">
+                            <button id="buyOrderBtn" class="btn-buy">
+                                <i class="fas fa-arrow-up"></i> BUY
+                            </button>
+                            <button id="sellOrderBtn" class="btn-sell">
+                                <i class="fas fa-arrow-down"></i> SELL
+                            </button>
+                        </div>
+                        <div id="orderMessage" class="info-message"></div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="card-title">
+                        <i class="fas fa-wallet"></i> Manajemen Dana
+                    </div>
+                    <div class="funds-form">
+                        <div class="fund-row">
+                            <input type="number" id="depositAmount" placeholder="Nominal deposit" min="1">
+                            <button id="depositBtn" class="btn-deposit">
+                                <i class="fas fa-plus-circle"></i> Deposit
+                            </button>
+                        </div>
+                        <div class="fund-row">
+                            <input type="number" id="withdrawAmount" placeholder="Nominal withdraw" min="1">
+                            <button id="withdrawBtn" class="btn-withdraw">
+                                <i class="fas fa-minus-circle"></i> Withdraw
+                            </button>
+                        </div>
+                        <div class="fund-row promo-row">
+                            <input type="text" id="promoCode" placeholder="Kode promo (TRENDING10)">
+                            <button id="applyPromoBtn" class="btn-promo">
+                                <i class="fas fa-tag"></i> Apply
+                            </button>
+                        </div>
+                        <div id="fundMessage" class="info-message"></div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="card-title">
+                        <i class="fas fa-history"></i> Riwayat Transaksi
+                        <button id="clearHistoryBtn" class="btn-clear-history" style="float: right; background: none; border: none; color: #ef4444; cursor: pointer;">
+                            <i class="fas fa-trash-alt"></i> Hapus
+                        </button>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-history">Belum ada transaksi</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin Panel (only visible for admin role) -->
+            <div id="adminPanel" class="admin-panel" style="display:none;">
+                <div class="card-title">
+                    <i class="fas fa-crown"></i> Admin Control Center
+                </div>
+                <div class="admin-controls">
+                    <div class="admin-row">
+                        <input type="text" id="adminTargetUser" placeholder="Username target">
+                        <input type="number" id="adminAmount" placeholder="Jumlah (+/-)">
+                        <button id="adminAdjustBalance" class="btn-admin">
+                            <i class="fas fa-database"></i> Ubah Saldo
+                        </button>
+                    </div>
+                    <div class="admin-row">
+                        <button id="adminViewAllUsers" class="btn-admin">
+                            <i class="fas fa-users"></i> Lihat Semua User
+                        </button>
+                        <button id="adminResetData" class="btn-admin btn-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Reset Data
+                        </button>
+                    </div>
+                    <div id="userListContainer" class="user-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== MODAL POPUP (Trending & Promo) ==================== -->
+    <div id="trendingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <i class="fas fa-fire" style="font-size: 32px; color: #facc15;"></i>
+                <h2>Apa Itu Trending di TradingPro?</h2>
+            </div>
+            <div class="modal-body">
+                <p><strong>Trending</strong> adalah aset atau pasangan mata uang kripto yang sedang mengalami <strong>volume perdagangan tinggi</strong> dan <strong>pergerakan harga signifikan</strong> dalam 24 jam terakhir. Di TradingPro, kami menyoroti:</p>
+                <ul>
+                    <li>🚀 <strong>Top Gainers</strong> – Aset dengan kenaikan harga tertinggi</li>
+                    <li>📉 <strong>Top Losers</strong> – Aset dengan penurunan harga terbesar</li>
+                    <li>🔥 <strong>Hot Pairs</strong> – Pasangan dengan volume transaksi terbanyak</li>
+                    <li>📊 <strong>Trending News</strong> – Berita yang mempengaruhi pasar</li>
+                </ul>
+                <div class="promo-box">
+                    <i class="fas fa-gift"></i> <strong>PROMO SPESIAL:</strong> Deposit pertama minimal $50 dapat bonus 10%! Gunakan kode <span class="promo-code">TRENDING10</span>
+                </div>
+                <div class="stats-preview" id="userStatsPreview">
+                    <!-- Akan diisi statistik pengguna via JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeModalBtn" class="btn-primary">Mulai Trading</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript Modules (urutan penting) -->
+    <script src="js/config.js"></script>
+    <script src="js/constants.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/market.js"></script>
+    <script src="js/chart.js"></script>
+    <script src="js/trading.js"></script>
+    <script src="js/funds.js"></script>
+    <script src="js/history.js"></script>
+    <script src="js/trending.js"></script>
+    <script src="js/stats.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/modal.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
